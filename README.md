@@ -18,7 +18,7 @@ Visual Studio Code with the Java extension
 ## Useful Websites
 - [W3 Schoools - Java](https://www.w3schools.com/java/default.asp)
 - [Stack Overflow - Java User Input](https://stackoverflow.com/questions/5287538/how-to-get-the-user-input-in-java)
-- [JavaPoint - Destructors] (https://www.javatpoint.com/java-destructor)
+- [JavaPoint - Destructors](https://www.javatpoint.com/java-destructor)
 
 ## Future Work
 - Add ability to move between Rooms (just need a way for user to call the function)
