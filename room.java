@@ -24,6 +24,62 @@ public class Room {
         createRoom(w, h);
     }
 
+    // Get the width of the Room
+    public int getWidth() {
+        return this.width;
+    }
+
+    // Get the height of the Room
+    public int getHeight() {
+        return this.height;
+    }
+
+    // Add the given Player to the center of the Room, returns if successful
+    // TODO: Add Player to Room connection in direction entered
+    public boolean addPlayer(Player player) {
+        return replaceItem(this.height / 2, this.width / 2, player);
+    }
+
+    // Move the Player around the Room
+    public boolean movePlayer(Player player, int newRow, int newCol) {
+        // If the new space is overwritable,
+        if (spaces[newRow][newCol].isMovable()) {
+            // Remove the Player from previous location
+            boolean success = removePlayer(player);
+            
+            // Add the Player to their new location
+            return replaceItem(newRow, newCol, player);
+        }
+
+        // Cannot move to given position
+        return false;
+    }
+
+    // Remove the given Player from the Room, returns if successful
+    public boolean removePlayer(Player player) {
+        
+        // The item the Player will be replaced by, mainly for path
+        int pointDrop = 1;
+        GameItem replace = new Pickup(pointDrop);
+        if (player.hasPath() == true && player.getScore() > pointDrop) {
+            // Uh oh. protected does not mean private
+            replace.symbol = 'O';
+
+            // Proper way, old object is deleted by garbage collected
+            //replace = new GameItem('O');
+        }
+        
+        // Empty the Player's previous spot, and replace with dropped coin
+        boolean moved = replaceItem(player.getRow(), player.getCol(), replace);
+        if (moved)
+        {
+            player.addPoints(-pointDrop);
+        }
+
+        // Return if the move was successful
+        return moved;
+    }
+
     // Given a Room's width and height, generates a number of
     // randomly placed GameItems, then proceeds with creating the Room
     private void createRoom(int w, int h) {
@@ -54,17 +110,17 @@ public class Room {
         for (int row = 0; row < this.height; row++) {
             for (int col = 0; col < this.width; col++) {
                 spaces[row][col] = new GameItem(' ', true);
-                //System.out.print(spaces[row][col].getSymbol());
             }
         }
 
         // Does ForEach work with 2D arrays?
         /*
-        spaces.forEach(row -> 
-            { row.forEach(item -> 
-                { System.out.print(item.getSymbol());
-                });
-        });*/
+         * spaces.forEach(row ->
+         * { row.forEach(item ->
+         * { System.out.print(item.getSymbol());
+         * });
+         * });
+         */
 
         // Populate the spaces (including making the walls)
         // Will use given
@@ -72,13 +128,13 @@ public class Room {
     }
 
     // Asserts that the given x,y coordinate is within the bounds of the board
-    private boolean assertValidPos(int x, int y) {
+    private boolean assertValidPos(int row, int col) {
         // Location must be on the board
         try {
-            assert (y >= 0);
-            assert (y < this.height);
-            assert (x >= 0);
-            assert (x < this.width);
+            assert (row >= 0);
+            assert (row < this.height);
+            assert (col >= 0);
+            assert (col < this.width);
         } catch (AssertionError e) {
             System.out.print("Invalid board position");
             return false; // Did not pass all verifications
@@ -96,34 +152,33 @@ public class Room {
             if (row == 0 || row == spaces.length - 1) {
                 // The corners of the board (TODO: can make a const/static variable for visual
                 // representation)
-                replaceItem(0, row, new GameItem('+', false));
-                replaceItem(spaces[row].length - 1, row, new GameItem('+', false));
+                replaceItem(row, 0, new GameItem('+', false));
+                replaceItem(row, spaces[row].length - 1, new GameItem('+', false));
 
                 // Fill in the space between
                 for (int col = 1; col < spaces[row].length - 1; col++) {
-                    replaceItem(col, row, new GameItem('-', false));
+                    replaceItem(row, col, new GameItem('-', false));
                 }
             } else {
                 // Create the borders for the left and right
-                replaceItem(0, row, new GameItem('|', false));
-                replaceItem(spaces[row].length - 1, row, new GameItem('|', false));
+                replaceItem(row, 0, new GameItem('|', false));
+                replaceItem(row, spaces[row].length - 1, new GameItem('|', false));
             }
         }
 
         // Then place each GameItem in their space on the board
         items.forEach(item -> {
-            replaceItem(item.getCol(), item.getRow(), item);
+            replaceItem(item.getRow(), item.getCol(), item);
         });
     }
 
-    // Replaces a BoardItem at the specified location, where yPos is row, and xPos
-    // is column
-    private boolean replaceItem(int xPos, int yPos, GameItem newItem) {
+    // Replaces a BoardItem at the specified location, (row, col)
+    private boolean replaceItem(int row, int col, GameItem newItem) {
         // Location must be on the board,
         // And can only replace the item if it isn't permanent (a wall, etc)
-        if (assertValidPos(xPos, yPos) && spaces[yPos][xPos].isMovable()) {
+        if (assertValidPos(row, col) && spaces[row][col].isMovable()) {
             // Remove the previous item from the board
-            GameItem removedItem = removeItem(xPos, yPos);
+            GameItem removedItem = removeItem(row, col);
 
             // If the removed item is a Pickup, and the Player has removed it,
             if (removedItem.getClass().getName() == "Pickup" && newItem.getClass().getName() == "Player") {
@@ -132,8 +187,8 @@ public class Room {
             }
 
             // Update the position of the newItem
-            spaces[yPos][xPos] = newItem;
-            newItem.setPos(xPos, yPos);
+            spaces[row][col] = newItem;
+            newItem.setPos(row, col);
 
             return true; // Replaced piece successfully
         }
@@ -142,20 +197,20 @@ public class Room {
         return false;
     }
 
-    // Removes the item at a specified x,y position from the board,
+    // Removes the item at a specified row, col position from the board,
     // returns the BoardItem that was removed
-    private GameItem removeItem(int xPos, int yPos) {
+    private GameItem removeItem(int row, int col) {
         // If position is on the board
         // And the item there can be overridden,
-        if (assertValidPos(xPos, yPos) && spaces[yPos][xPos].isMovable()) {
+        if (assertValidPos(row, col) && spaces[row][col].isMovable()) {
             // Remove the item from the board and return what was removed
 
             // Tell the BoardItem it is no longer on the board
-            var removeItem = spaces[yPos][xPos];
+            var removeItem = spaces[row][col];
             removeItem.setPos(-1, -1);
 
             // The board now has an empty BoardItem in its place
-            spaces[yPos][xPos] = new GameItem();
+            spaces[row][col] = new GameItem();
 
             return removeItem;
         }
@@ -172,61 +227,90 @@ public class Room {
 
     public void display() {
         // TODO: Use display label, or transfer to a wasd movement?
-        /*
-         * if (displayLabel) {
-         * for(int row = 0; row < spaces.length; row++) {
-         * print(rowLabel);
-         * rowLabel++;
-         * print(" ");
-         * }
-         * }
-         */
-        
-        
+
         for (int row = 0; row < this.height; row++) {
+            if (displayLabel) {
+                System.out.print(String.format("%s ", row));
+            }
             for (int col = 0; col < this.width; col++) {
-                System.out.print(spaces[row][col].getSymbol());
+                System.out.print(String.format("%s ", spaces[row][col].getSymbol()));
             }
             System.out.println();
-        }        
-        System.out.println();
+        }
 
-        /*
-        for (int row = 0; row < spaces.length; row++) {
-            for (int col = 0; col < spaces.length; col++) {
-                spaces[row][col].display();
+        // If the label should be displayed,
+        if (displayLabel) {
+
+            // display tens
+            if (width > 10) {
+                System.out.print("  "); // corner
+
+                // Print the tens
+                for (int col = 0; col < width; col++) {
+                    if (col < 10) {
+                        System.out.print("  ");
+                    } else {
+                        int tens = col / 10;
+                        System.out.print(String.format("%s ", tens));
+                    }
+                }
+                System.out.println();
             }
 
-        }*/
-        /*
-         * // Only display label if true
-         * if (displayLabel) {
-         * print("  "); // corner
-         * var rowMin: Int = minOf(9, width);
-         * for (i in 0..rowMin) print("$i ");
-         * 
-         * // If the width goes into the double digits,
-         * if (width > 10) {
-         * for (i in 10 until width) {
-         * // Print the first digit
-         * val tens = i / 10;
-         * print("$tens ");
-         * }
-         * 
-         * println() // Move down a line
-         * 
-         * // Spacing
-         * for (i in 0..10) print("  ") {
-         * for (i in 10 until width) {
-         * // Print the next digit
-         * val remainder = i % 10;
-         * print("$remainder ");
-         * }
-         * }
-         * }
-         */
+            // display ones
+            System.out.print("  "); // corner
+            for (int col = 0; col < width; col++) {
+                int ones = col;
+                if (ones >= 10)
+                {
+                    ones = ones % 10;
+                }
+                System.out.print(String.format("%s ", ones));
+            }
+            System.out.println();
+        }
 
-        System.out.println();
+
+    
+
+    /*
+     * for (int row = 0; row < spaces.length; row++) {
+     * for (int col = 0; col < spaces.length; col++) {
+     * spaces[row][col].display();
+     * }
+     * 
+     * }
+     */
+    /*
+     * // Only display label if true
+     * if (displayLabel) {
+     * print("  "); // corner
+     * var rowMin: Int = minOf(9, width);
+     * for (i in 0..rowMin) print("$i ");
+     * 
+     * // If the width goes into the double digits,
+     * if (width > 10) {
+     * for (i in 10 until width) {
+     * // Print the first digit
+     * val tens = i / 10;
+     * print("$tens ");
+     * }
+     * 
+     * println() // Move down a line
+     * 
+     * // Spacing
+     * for (i in 0..10) print("  ") {
+     * for (i in 10 until width) {
+     * // Print the next digit
+     * val remainder = i % 10;
+     * print("$remainder ");
+     * }
+     * }
+     * }
+     */
+
+    System.out.println();
+
     }
 
     // TODO: use enum
@@ -240,5 +324,4 @@ public class Room {
     protected List<Room> connections = new ArrayList<Room>();
     protected int width;
     protected int height;
-
 }
