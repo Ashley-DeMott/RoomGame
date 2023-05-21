@@ -79,6 +79,7 @@ public class Game {
     private void getRooms() {
         rooms.add(new Room());
         rooms.add(new Room(25, 10));
+        rooms.add(new Room(30, 20));
 
     }
 

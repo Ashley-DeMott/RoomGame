@@ -112,16 +112,7 @@ public class Room {
                 spaces[row][col] = new GameItem(' ', true);
             }
         }
-
-        // Does ForEach work with 2D arrays?
-        /*
-         * spaces.forEach(row ->
-         * { row.forEach(item ->
-         * { System.out.print(item.getSymbol());
-         * });
-         * });
-         */
-
+        
         // Populate the spaces (including making the walls)
         // Will use given
         populateSpaces(items);
@@ -225,8 +216,8 @@ public class Room {
         return removeItem(item.getRow(), item.getCol());
     }
 
+    // Display the Room and the row and column labels
     public void display() {
-        // TODO: Use display label, or transfer to a wasd movement?
 
         for (int row = 0; row < this.height; row++) {
             if (displayLabel) {
@@ -269,45 +260,6 @@ public class Room {
             }
             System.out.println();
         }
-
-
-    
-
-    /*
-     * for (int row = 0; row < spaces.length; row++) {
-     * for (int col = 0; col < spaces.length; col++) {
-     * spaces[row][col].display();
-     * }
-     * 
-     * }
-     */
-    /*
-     * // Only display label if true
-     * if (displayLabel) {
-     * print("  "); // corner
-     * var rowMin: Int = minOf(9, width);
-     * for (i in 0..rowMin) print("$i ");
-     * 
-     * // If the width goes into the double digits,
-     * if (width > 10) {
-     * for (i in 10 until width) {
-     * // Print the first digit
-     * val tens = i / 10;
-     * print("$tens ");
-     * }
-     * 
-     * println() // Move down a line
-     * 
-     * // Spacing
-     * for (i in 0..10) print("  ") {
-     * for (i in 10 until width) {
-     * // Print the next digit
-     * val remainder = i % 10;
-     * print("$remainder ");
-     * }
-     * }
-     * }
-     */
 
     System.out.println();
 
