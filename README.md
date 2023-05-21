@@ -1,16 +1,11 @@
 # RoomGame
 ## Overview
 
-{what you are trying to accomplish as a software engineer to further your learning?}
-A Java project that allows the user to navigate around a room
+This Java project allows the user to navigate around a room and collect Pickups. Currenlty, the goal is to pick up coins that the Player drops, but because they drop a coin every move, the game is unwinnable. This builds off my previous Kotlin project.
 
-{Provide a description of the software that you wrote to demonstrate the Java language.}
+I made this project to learn more about Java and how to implement classes that extend/inherit from eachother. I also learned about Scanners, and how to use them to get the nextInt or the nextLine, depending on what user input is needed.
 
-{Describe your purpose for writing this software.}
-
-{YouTube demonstration. It should be a 4-5 minute demo of the software running and a walkthrough of the code. Focus should be on sharing what you learned about the language syntax.}
-
-[Software Demo Video](http://youtube.link.goes.here)
+[Software Demo Video](https://youtu.be/XvJXemo0M7o)
 
 ## Development Environment
 Visual Studio Code with the Java extension
@@ -21,6 +16,10 @@ Visual Studio Code with the Java extension
 - [JavaPoint - Destructors](https://www.javatpoint.com/java-destructor)
 
 ## Future Work
+- *Make the game winable! Currently lose all coins by moving, no matter what
+  - Can add a probability that the coin will drop/fall out of bag
+  - Duplicate coin/coin scatter in area Player was standing
+  - Coins become a higher point value than dropped, reach a goal number
 - Add ability to move between Rooms (just need a way for user to call the function)
 - Read and Write Room/map data into a file or a database
 - Add existing Pickups to Rooms
